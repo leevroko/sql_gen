@@ -3,6 +3,7 @@ module github.com/leevroko/sql_gen
 go 1.25.4
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.14.1
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgx/v5 v5.9.2
 )

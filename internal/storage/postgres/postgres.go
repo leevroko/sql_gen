@@ -12,7 +12,7 @@ import (
 )
 
 type PostgresDb struct {
-	connPool	*pgxpool.Pool
+	ConnPool	*pgxpool.Pool
 	cfg 		config.DbSchema
 	ctx 		context.Context
 	logger 		*slog.Logger
@@ -29,7 +29,7 @@ func New(ctx context.Context, host, port, username, password, database string, c
 	
 	db := &PostgresDb{
 		ctx: ctx,
-		connPool: pool,
+		ConnPool: pool,
 		cfg: cfg,
 		logger: logger,
 	}
@@ -50,7 +50,7 @@ func (p *PostgresDb) TableExists(tableName string) (bool, error) {
 	)`
 
 	tableFound := false
-	err := p.connPool.QueryRow(p.ctx, stmt, "public", tableName).Scan(&tableFound)
+	err := p.ConnPool.QueryRow(p.ctx, stmt, "public", tableName).Scan(&tableFound)
 	if err != nil {
 		return false, err
 	}
@@ -94,7 +94,7 @@ func (p *PostgresDb) validateSchema(schema config.DbSchema) error {
 			}
 			stmt := stmtBuilder.String()
 			p.logger.Debug("Table creation statement ready", slog.String("sql", stmt))
-			commandTag, err := p.connPool.Exec(p.ctx, stmt)
+			commandTag, err := p.ConnPool.Exec(p.ctx, stmt)
 			if err != nil {
 				panic(fmt.Errorf("error during validation: %w", err).Error())
 			}
@@ -102,6 +102,17 @@ func (p *PostgresDb) validateSchema(schema config.DbSchema) error {
 		}
 	}
 	return nil
+}
+
+func (p *PostgresDb) GetEntryCount(tableName string) (int, error) {
+	stmt := fmt.Sprintf("SELECT COUNT(*) FROM %v;", tableName)
+	
+	var count int
+	err := p.ConnPool.QueryRow(p.ctx, stmt).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func validateField(field config.ColumnSchema) bool {

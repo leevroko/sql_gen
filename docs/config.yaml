@@ -1,0 +1,25 @@
+name: postgres_db 
+tables: 
+- name: tasks
+  require_entry_count: 100
+  fields: 
+    - name: task_id
+      type: int
+      constraint: primary key
+      generated_type: Uint16
+    - name: task_name
+      type: text
+      generated_type: JobTitle
+    - name: employee_id
+      type: int
+      generated_type: Uint16
+- name: employees
+  require_entry_count: 100
+  fields: 
+    - name: employee_id
+      type: int
+      constraint: primary key
+      generated_type: Uint16
+    - name: name
+      type: text
+      generated_type: Name

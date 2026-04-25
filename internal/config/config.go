@@ -27,20 +27,21 @@ type ConnConfig struct {
 }
 
 type ColumnSchema struct {
-	Name 			string	`yaml:"name" json:"name" env-required:"required"`
-	Type 			string	`yaml:"type" json:"type" env-required:"required"`
-	GeneratedType	string	`yaml:"generated_type" json:"generated_type" env-required:"required"`
+	Name 			string	`yaml:"name" json:"name" env-required:"true"`
+	Type 			string	`yaml:"type" json:"type" env-required:"true"`
+	GeneratedType	string	`yaml:"generated_type" json:"generated_type" env-required:"true"`
 	Constraint 		string	`yaml:"constraint,omitempty" json:"constraint,omitempty"`
 }
 
 type TableSchema struct {
-	Name 	string 			`yaml:"name" json:"name" env-required:"required"`
-	Fields 	[]ColumnSchema	`yaml:"fields" json:"fields" env-required:"required"`
+	Name 		string 			`yaml:"name" json:"name" env-required:"true"`
+	Fields 		[]ColumnSchema	`yaml:"fields" json:"fields" env-required:"true"`
+	EntryCount	int				`yaml:"require_entry_count" json:"require_entry_count" env-required:"true"`
 }
 
 type DbSchema struct {
-	Name 	string			`yaml:"name" json:"name" env-required:"required"`
-	Tables 	[]TableSchema	`yaml:"tables" json:"tables" env-required:"required"`
+	Name 	string			`yaml:"name" json:"name" env-required:"true"`
+	Tables 	[]TableSchema	`yaml:"tables" json:"tables" env-required:"true"`
 }
 
 const (
