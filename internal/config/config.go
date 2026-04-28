@@ -11,11 +11,26 @@ import (
 	"github.com/leevroko/sql_gen/internal/lib/helpers/sl"
 )
 
+const (
+	EntriesLimit = 10_000
+)
+
 type Config struct {
 	LogLevel 	slog.Level
 	Schema 		DbSchema
+	AppConfig 	applicationConfig
 	
 	ConnConfig
+}
+
+type applicationConfig struct {
+	MaxEntries int
+}
+
+func NewApplicationConfig(MaxEntries int) applicationConfig {
+	return applicationConfig{
+		MaxEntries: MaxEntries,
+	}
 }
 
 type ConnConfig struct {
@@ -174,6 +189,8 @@ func ParseConfigFromOsArgs() Config {
 
 		exitWithError(fmt.Errorf("unknkown flag: %v", arg))
 	}
+
+	config.AppConfig = NewApplicationConfig(EntriesLimit)
 
 	return config
 }

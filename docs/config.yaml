@@ -13,6 +13,14 @@ tables:
     - name: employee_id
       type: int
       generated_type: Uint16
+  relations:
+    - our_column: employee_id
+      their_table: employees
+      their_column: emplyee_id
+      relation_type: A_includes_B # B_includes_A, A_is_B, A_intersects_B
+      difference_coefficient: 0.2
+      disparity_coefficient: 0.2
+
 - name: employees
   require_entry_count: 100
   fields: 

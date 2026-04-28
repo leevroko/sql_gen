@@ -6,13 +6,14 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/leevroko/sql_gen/internal/config"
 )
 
 type PostgresDb struct {
-	ConnPool	*pgxpool.Pool
+	connPool	*pgxpool.Pool
 	cfg 		config.DbSchema
 	ctx 		context.Context
 	logger 		*slog.Logger
@@ -29,7 +30,7 @@ func New(ctx context.Context, host, port, username, password, database string, c
 	
 	db := &PostgresDb{
 		ctx: ctx,
-		ConnPool: pool,
+		connPool: pool,
 		cfg: cfg,
 		logger: logger,
 	}
@@ -42,6 +43,19 @@ func New(ctx context.Context, host, port, username, password, database string, c
 	return db
 }
 
+func (p *PostgresDb) Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error) {
+	switch len(arguments) {
+	case 0:
+		return p.connPool.Exec(ctx, sql)
+	case 1: 
+		return p.connPool.Exec(ctx, sql, arguments[0])
+	}
+	if len(arguments) == 0 {
+		return p.connPool.Exec(ctx, sql)
+	} else if len(a)
+	return p.connPool.Exec(ctx, sql, arguments)
+}
+
 func (p *PostgresDb) TableExists(tableName string) (bool, error) {
 	stmt := `
 	SELECT EXISTS (
@@ -50,7 +64,7 @@ func (p *PostgresDb) TableExists(tableName string) (bool, error) {
 	)`
 
 	tableFound := false
-	err := p.ConnPool.QueryRow(p.ctx, stmt, "public", tableName).Scan(&tableFound)
+	err := p.connPool.QueryRow(p.ctx, stmt, "public", tableName).Scan(&tableFound)
 	if err != nil {
 		return false, err
 	}
@@ -94,7 +108,7 @@ func (p *PostgresDb) validateSchema(schema config.DbSchema) error {
 			}
 			stmt := stmtBuilder.String()
 			p.logger.Debug("Table creation statement ready", slog.String("sql", stmt))
-			commandTag, err := p.ConnPool.Exec(p.ctx, stmt)
+			commandTag, err := p.connPool.Exec(p.ctx, stmt)
 			if err != nil {
 				panic(fmt.Errorf("error during validation: %w", err).Error())
 			}
@@ -108,7 +122,7 @@ func (p *PostgresDb) GetEntryCount(tableName string) (int, error) {
 	stmt := fmt.Sprintf("SELECT COUNT(*) FROM %v;", tableName)
 	
 	var count int
-	err := p.ConnPool.QueryRow(p.ctx, stmt).Scan(&count)
+	err := p.connPool.QueryRow(p.ctx, stmt).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
